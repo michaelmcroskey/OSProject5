@@ -1,5 +1,6 @@
 # Operating Systems Project 5
 A simple but fully functional demand paged virtual memory
+
 A project by [Michael McRoskey](http://michaelmcroskey.com/) (mmcrosk1) and [Maggie Thomann](http://maggiethomann.com/) (mthomann)
 
 Project Overview
@@ -138,15 +139,7 @@ The `fetch()` and `parse()` functions each make use of `unique_lock<mutex>` to l
 
 | Feature                        | Description                                                             |
 |--------------------------------|-------------------------------------------------------------------------|
-| Coding style/Formatting        | Good! (at least this README is well documented!)                        |
-| Correct config parsing         | Yes (gives warning for unknown params, sets defaults)                   |
-| Single-site testing            | Passes                                                                  |
-| Multiple-site testing          | Passes                                                                  |
-| Error-prone site testing       | Yes (`FOLLOWLOCATION` and `TIMEOUT_MS` curl flags specified)            |
-| Graceful exit (SIGHUP/CTRL-C)  | Yes (will not exit while writing to file)                               |
-| Config error protection        | Yes (exceptions for I/O errors, default values, thread limits)          |
-| Single output file per fetch   | Yes (`1.csv`, `2.csv`, ...)                                             |
-| Thread variations work         | Yes (default # threads, works with 1-8 threads for parse/fetch threads) |
-| Multi-thread, multi-site, multi-search works   | Yes (tested with 5 sites, 5 search terms, 3 fetch threads, 2 parse threads) |
-| Use of condition variables     | Yes (`fetch_cv` and `parse_cv`)                                         |
-| Use of threading               | Yes (used `<std::thread>`)                                              |
+| Correct implementation of demand paging with any arbitrary access pattern and amount of virtual and physical memory.   | Good! (at least this README is well documented!)                        |
+| A lab report which is clearly written using correct English, contains an appropriate description of your experiments, contains correct results that are clearly presented, and draws appropriate conclusions.  | Yes (gives warning for unknown params, sets defaults)                   |
+| Thorough attention to and handling of all possible error conditions, including user error.     | Passes                                                                  |
+| Good coding style, including clear formatting, sensible variable names, and useful comments.   | Passes                                                                  |

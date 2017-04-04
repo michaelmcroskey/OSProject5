@@ -1,18 +1,25 @@
-CXX=		g++
-CXXFLAGS=	-lcurl -g -Wall -std=c++11 -lpthread -static-libstdc++
+CXX=		gcc
+CXXFLAGS=	-Wall -g -c
 SHELL=		bash
-PROGRAMS=	site-tester
-CSV_FILES = $(filter-out csv/1.csv, $(wildcard csv/*.csv))
-HTML_FILES = $(filter-out html/1.html, $(wildcard html/*.html))
+PROGRAMS=	virtmem
 
-all:		site-tester
+all: virtmem
 
-tool:	site-tester.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $^
-	
-test:
-	echo "Test succeeded"
+virtmem: main.o page_table.o disk.o program.o
+	$(CXX) main.o page_table.o disk.o program.o -o virtmem
+
+main.o: main.c
+	$(CXX) $(CXXFLAGS) main.c -o main.o
+
+page_table.o: page_table.c
+	$(CXX) $(CXXFLAGS) page_table.c -o page_table.o
+
+disk.o: disk.c
+	$(CXX) $(CXXFLAGS) disk.c -o disk.o
+
+program.o: program.c
+	$(CXX) $(CXXFLAGS) program.c -o program.o
 
 clean:
-	rm -f $(PROGRAMS) $(CSV_FILES) $(HTML_FILES)
+	rm -f *.o $(PROGRAMS)
 	rm -rf *.dSYM
