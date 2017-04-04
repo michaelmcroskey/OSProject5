@@ -16,11 +16,16 @@ how to use the page table and disk interfaces.
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <stdbool.h>
 
 // Globals
 int NFRAMES;
 int NPAGES;
 struct frame_table FT;
+struct disk *DISK;
+char *PHYSMEM;
+
+/*--FRAME_TABLE Creation & Functions--------------------*/
 
 // Frame Struct
 typedef struct{
@@ -33,27 +38,72 @@ struct frame_table {
     frame* frames;
 };
 
-// Page fault handler
+/*  Returns true if the given frame number in the
+    frame_table is free and false if it's not free */
+bool is_frame_free(int frame_number){
+    if (strcmp(FT.frames[frame_number].bits, "-") == 0
+        && (FT.frames[frame_number].free == 0)){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+/*  Returns an int of the next free place in the 
+    frame_table by performing a linear search or 
+    -1 if no frames are free */
+int next_free_frame(){
+    int fn;
+    for (fn = 0; fn < NFRAMES; fn++){
+        if (is_frame_free(fn)){
+            return fn;
+        }
+    }
+    printf("ERROR: next_free_frame():  No frames are free. \n");
+    return -1;
+}
+
+/*  Prints out the current state of the global 
+    frame_table */
+void print_frame_table(){
+    int i;
+    printf("Frame\t|\tBits \n");
+    for (i = 0; i < NFRAMES; i++){
+        printf("%d\t\t%s\n",
+               FT.frames[i].free,
+               FT.frames[i].bits);
+    }
+}
+
+/*--PAGE FAULT ERROR HANDLING---------------------------*/
+
+/* Page fault handler handles page_table errors */
 void page_fault_handler( struct page_table *pt, int page )
 {
     // Trivial Example
     if (NFRAMES == NPAGES){
         page_table_set_entry(pt,page,page,PROT_READ|PROT_WRITE);
+        return;
     }
-    else{
-        printf("page fault on page #%d\n",page);
-        exit(1);
+    // Reading a page that doesn't exist in physical memory
+    else {
+        /*  If there are no permissions, set it to PROT_READ
+            and return */
+        if (is_frame_free){ // Instead get the permissions for a page
+            int fn = next_free_frame();
+            page_table_set_entry(pt, page, fn, PROT_READ);
+            disk_read(DISK, page, &PHYSMEM[fn*sizeof(frame)]);
+            return;
+        }
+        else{
+            printf("page fault on page #%d\n",page);
+            exit(1);
+        }
     }
+    
 }
 
-// frame_table printer utility
-void print_frame_table(){
-    int i;
-    printf("Frame\t|\tBits \n");
-    for (i = 0; i < NFRAMES; i++){
-        printf("%d\t\t%s\n", FT.frames[i].free, FT.frames[i].bits);
-    }
-}
 
 // Main execution
 int main( int argc, char *argv[] )
@@ -70,8 +120,8 @@ int main( int argc, char *argv[] )
 	const char *program = argv[4];
 
 	// Create virtual disk
-	struct disk *disk = disk_open("myvirtualdisk",NPAGES);
-	if(!disk) {
+	DISK = disk_open("myvirtualdisk",NPAGES);
+	if(!DISK) {
 		fprintf(stderr,"couldn't create virtual disk: %s\n",strerror(errno));
 		return 1;
 	}
@@ -91,11 +141,11 @@ int main( int argc, char *argv[] )
         FT.frames[i].free = 0;
         FT.frames[i].bits = "-";
     }
-    print_frame_table();
-
+    next_free_frame();
+    
 	// Create virual and physical memory space
 	char *virtmem = page_table_get_virtmem(pt);
-	char *physmem = page_table_get_physmem(pt);
+	PHYSMEM = page_table_get_physmem(pt);
 	
 	// Page replacement type case structure
 	if(!strcmp(page_replacement_type,"rand")) {
@@ -128,7 +178,7 @@ int main( int argc, char *argv[] )
 	}
 
 	page_table_delete(pt);
-	disk_close(disk);
+	disk_close(DISK);
 
 	return 0;
 }
