@@ -8,6 +8,8 @@ Project Overview
 
 - [Project Requirements](http://www3.nd.edu/~dthain/courses/cse30341/spring2017/project5/project5.html)
 
+<img src="images/vm1.gif" width="500">
+
 TEMPLATE TEXT BELOW
 
 Operating Systems Project 4 is an SEO-Optimization tool that tracks how often specified keywords appear on certain websites by constantly fetching and parsing those websites via [libcurl](https://curl.haxx.se/libcurl/). The project utilizes multi-threading, mutex locks, and conditional variables to ensure thread-safety with global resources such as boolean values and queues. A user will edit configuration files, specify the terms to search and URLs to access, and then run `site-tester` to constantly output processed word count data into CSV files.
@@ -30,8 +32,6 @@ Operating Systems Project 4 is an SEO-Optimization tool that tracks how often sp
   + **`1.csv`**: first CSV file -- all generated CSV files will go here
 16. **`images/`**
   + **`ec_screenshot.png`**: screenshot of extra credit at [http://localhost:8000/html/1.html]()
-
-<img src="images/ec_screenshot.png" width="500">
 
 ## System Requirements
 System should have a `g++` compiler installed and be able to compile with the following flags:
