@@ -20,6 +20,18 @@ how to use the page table and disk interfaces.
 // Globals
 int NFRAMES;
 int NPAGES;
+struct frame_table FT;
+
+// Frame Struct
+typedef struct{
+    int free;
+    char *bits;
+} frame;
+
+// Frame Table Struct
+struct frame_table {
+    frame* frames;
+};
 
 // Page fault handler
 void page_fault_handler( struct page_table *pt, int page )
@@ -31,6 +43,15 @@ void page_fault_handler( struct page_table *pt, int page )
     else{
         printf("page fault on page #%d\n",page);
         exit(1);
+    }
+}
+
+// frame_table printer utility
+void print_frame_table(){
+    int i;
+    printf("Frame\t|\tBits \n");
+    for (i = 0; i < NFRAMES; i++){
+        printf("%d\t\t%s\n", FT.frames[i].free, FT.frames[i].bits);
     }
 }
 
@@ -62,6 +83,15 @@ int main( int argc, char *argv[] )
 		fprintf(stderr,"couldn't create page table: %s\n",strerror(errno));
 		return 1;
 	}
+    
+    // Create frame_table & initialize as empty
+    FT.frames = (frame*)malloc(sizeof(frame) * NFRAMES);
+    int i;
+    for (i = 0; i < NFRAMES; i++){
+        FT.frames[i].free = 0;
+        FT.frames[i].bits = "-";
+    }
+    print_frame_table();
 
 	// Create virual and physical memory space
 	char *virtmem = page_table_get_virtmem(pt);
