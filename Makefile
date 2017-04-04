@@ -1,4 +1,4 @@
-CXX=		gcc
+CXX=		/usr/bin/gcc
 CXXFLAGS=	-Wall -g -c
 SHELL=		bash
 PROGRAMS=	virtmem
