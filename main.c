@@ -17,36 +17,47 @@ how to use the page table and disk interfaces.
 #include <string.h>
 #include <errno.h>
 
+// Globals
+int NFRAMES;
+int NPAGES;
+
 // Page fault handler
 void page_fault_handler( struct page_table *pt, int page )
 {
-	printf("page fault on page #%d\n",page);
-	exit(1);
+    // Trivial Example
+    if (NFRAMES == NPAGES){
+        page_table_set_entry(pt,page,page,PROT_READ|PROT_WRITE);
+    }
+    else{
+        printf("page fault on page #%d\n",page);
+        exit(1);
+    }
 }
 
 // Main execution
 int main( int argc, char *argv[] )
 {
 	if(argc!=5) {
-		printf("use: virtmem <npages> <nframes> <rand|fifo|custom> <sort|scan|focus>\n");
+		printf("use: virtmem <NPAGES> <NFRAMES> <rand|fifo|custom> <sort|scan|focus>\n");
 		return 1;
 	}
 	
 	// Process command line arguments
-	int npages = atoi(argv[1]);
-	int nframes = atoi(argv[2]);
+	NPAGES = atoi(argv[1]);
+	NFRAMES = atoi(argv[2]);
 	const char *page_replacement_type = argv[3];
 	const char *program = argv[4];
 
 	// Create virtual disk
-	struct disk *disk = disk_open("myvirtualdisk",npages);
+	struct disk *disk = disk_open("myvirtualdisk",NPAGES);
 	if(!disk) {
 		fprintf(stderr,"couldn't create virtual disk: %s\n",strerror(errno));
 		return 1;
 	}
 
 	// Initialize page_table
-	struct page_table *pt = page_table_create( npages, nframes, page_fault_handler );
+	struct page_table *pt = page_table_create( NPAGES, NFRAMES, page_fault_handler );
+    
 	if(!pt) {
 		fprintf(stderr,"couldn't create page table: %s\n",strerror(errno));
 		return 1;
@@ -73,13 +84,13 @@ int main( int argc, char *argv[] )
 	
 	// Program case structure
 	if(!strcmp(program,"sort")) {
-		sort_program(virtmem,npages*PAGE_SIZE);
+		sort_program(virtmem,NPAGES*PAGE_SIZE);
 
 	} else if(!strcmp(program,"scan")) {
-		scan_program(virtmem,npages*PAGE_SIZE);
+		scan_program(virtmem,NPAGES*PAGE_SIZE);
 
 	} else if(!strcmp(program,"focus")) {
-		focus_program(virtmem,npages*PAGE_SIZE);
+		focus_program(virtmem,NPAGES*PAGE_SIZE);
 
 	} else {
 		fprintf(stderr,"unknown program: %s\n",argv[4]);
