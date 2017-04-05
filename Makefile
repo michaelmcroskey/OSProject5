@@ -8,8 +8,8 @@ all: virtmem
 virtmem: main.o page_table.o disk.o program.o
 	$(CXX) main.o page_table.o disk.o program.o -o virtmem
 
-main.o: main.c
-	$(CXX) $(CXXFLAGS) main.c -o main.o
+main.o: main2.c
+	$(CXX) $(CXXFLAGS) main2.c -o main.o
 
 page_table.o: page_table.c
 	$(CXX) $(CXXFLAGS) page_table.c -o page_table.o
