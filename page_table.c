@@ -127,6 +127,7 @@ void page_table_set_entry( struct page_table *pt, int page, int frame, int bits 
 
 void page_table_get_entry( struct page_table *pt, int page, int *frame, int *bits )
 {
+    
 	if( page<0 || page>=pt->npages ) {
 		fprintf(stderr,"page_table_get_entry: illegal page #%d\n",page);
 		abort();
@@ -134,6 +135,7 @@ void page_table_get_entry( struct page_table *pt, int page, int *frame, int *bit
 
 	*frame = pt->page_mapping[page];
 	*bits = pt->page_bits[page];
+    
 }
 
 void page_table_print_entry( struct page_table *pt, int page )
