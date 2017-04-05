@@ -61,7 +61,7 @@ struct frame_table {
 void print_frame_table(){
     int i;
     printf("Page\t|\tFrame\t|\tBits \n");
-    for (i = 0; i < NFRAMES; i++){
+    for (i = 0; i < NPAGES; i++){
         printf("%d\t\t%d\t\t%s\n",
                i,
                FT.frames[i].frame,
