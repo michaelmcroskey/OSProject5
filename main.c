@@ -200,7 +200,7 @@ int fifo(struct page_table *pt, int page){
     printf("fifo:  first-in element that should be removed %d\n", first_in);
     page_table_set_entry(pt, page, 0, 0);
     int mem_count;
-    mem_count = num_elements_in_frame_table();
+    mem_count = num_elements_in_frame_table(); 
     return first_in;
 }
 
