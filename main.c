@@ -340,7 +340,7 @@ void print_summary(){
  * and disk reads for the csv output
  */
 void print_summary_csv(){
-    printf("%d, %d, %d \n", NUM_PAGE_FAULTS, NUM_DISK_READS, NUM_DISK_WRITES);
+    printf("%d, %d, %d", NUM_PAGE_FAULTS, NUM_DISK_READS, NUM_DISK_WRITES);
 }
 
 
