@@ -10,9 +10,7 @@ Project Overview
 
 <img src="images/vm1.gif" width="500">
 
-TEMPLATE TEXT BELOW
-
-Operating Systems Project 4 is an SEO-Optimization tool that tracks how often specified keywords appear on certain websites by constantly fetching and parsing those websites via [libcurl](https://curl.haxx.se/libcurl/). The project utilizes multi-threading, mutex locks, and conditional variables to ensure thread-safety with global resources such as boolean values and queues. A user will edit configuration files, specify the terms to search and URLs to access, and then run `site-tester` to constantly output processed word count data into CSV files.
+Operating Systems Project 5 is a page fault handler tool that will trap page faults and identify the correct course of action, which generally means updating the page table, and moving data back and forth between the disk and physical memory.  The OS course at Notre Dame provided us with code that implements a "virtual" page table and a "virtual" disk and so our job was to handle any page fault errors that could result.  A user will run `./virtmem NUM_PAGES NUM_FRAMES PAGE_REPLACEMENT_ALGORITHM PROGRAM` and the output will report (1) the number of page faults, (2) the number of disk writes, (3) the number of disk reads and the (4) result of the `PROGRAM` chosen.
 
 ## Files
 1. **`site-tester.cpp`**: Given a configuration file argument, it uses producer/consumer threads to fetch websites and parse fetched content to count the occurrences of defined queries in real time
@@ -37,17 +35,14 @@ Operating Systems Project 4 is an SEO-Optimization tool that tracks how often sp
 System should have a `g++` compiler installed and be able to compile with the following flags:
 - `-g`
 - `-Wall` for errors
-- `-std=c++11` for C++11
-- `-lpthread` for threading
-- `-lcurl` for [libcurl](https://curl.haxx.se/libcurl/) library 
+- `-c` 
 
 ## Usage
-1. Edit `Config.txt`, `Search.txt`, and/or `Sites.txt` accordingly to configure options for number of threads, fetch period, URLs to parse, and search terms. See File Requirements below.
+1. Decide values for the following parameters you would like to test for virtual memory: (1)`NUM_PAGES`, (2)`NUM_FRAMES`, (3) `PAGE_REPLACEMENT_ALGORITHM`, & (4) `PROGRAM`
 2. Run `$ make` to build the executables.
-3. Run `$ site-tester Config.txt` to begin fetching/parsing URLs. The program will display to stdout each thread's actions.
-4. After the first period, `site-tester` will output `1.csv`, `2.csv`, and so on in the current directory. You can view the word counts for various sites.
-5. To end the run, `CTRL-C` in the command line.
-6. Run `$ make clean` to delete `*.csv` files and executables.
+3. Run `$ ./virtmem NUM_PAGES NUM_FRAMES PAGE_REPLACEMENT_ALGORITHM PROGRAM` to simulate virtual memory.
+4. The program will output the number of page faults that occured, the number of disk reads and the number of disk writes, and the result of the specific `PROGRAM`.
+5. Run `$ make clean` to delete `*.dSYM` files and executables.
 
 ### Extra Credit
 1. Run steps 1-5 above.
