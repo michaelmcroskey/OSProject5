@@ -33,7 +33,7 @@ char *PHYSMEM;
 int NUM_PAGE_FAULTS;
 int NUM_DISK_READS;
 int NUM_DISK_WRITES;
-int FIFO_INDEX;
+int TIME_STAMP_SIZE;
 
 /*
  * Frame Table Struct Creation
@@ -126,12 +126,12 @@ bool is_frame_free(int frame_number){
  */
 void update_frame(int frame, int p, int p_n){
     // printf("update_frame:  entered func \n");
+    FT.time_stamps[TIME_STAMP_SIZE] = frame;
+    TIME_STAMP_SIZE++;
     FT.frames[frame] = 1;
     FT.permissions[frame] = p;
     FT.pages[frame] = p_n;
-    int mem_count;
-    mem_count = num_elements_in_frame_table();
-    FT.time_stamps[mem_count] = frame;
+    
     // printf("update_frame:  inserted new frame at index: %d with time_stamp_index: %d \n", frame, FT.phys_mem_count);
     // printf("update_frame:  exited func \n");
 }
@@ -148,6 +148,14 @@ void evict_frame(int frame){
     FT.frames[frame] = 0;
     FT.permissions[frame] = 0;
     FT.pages[frame] = 0;
+    int i;
+    for (i = 0; i < TIME_STAMP_SIZE; i++){
+        if (FT.time_stamps[i] == frame){
+            FT.time_stamps[i] = -1;
+            break;
+        }
+    }
+    
     // printf("evict_frame:  evicted frame and now number of elements in frame is %d \n", FT.phys_mem_count);
     // printf("evict_frame:  exited func \n");
 }
@@ -178,16 +186,21 @@ int rand_func(){
  *  returns: first_in:  index of page that was
  *                      removed
  */
-int fifo(struct page_table *pt){
-    int first_in = FT.time_stamps[FIFO_INDEX];
+int fifo(struct page_table *pt, int page){
+    
+    int first_in;
+    int index = 0;
+    first_in = FT.time_stamps[index];
+    while (first_in == -1){
+        first_in = FT.time_stamps[index];
+    }
     printf("fifo:  first-in element that should be removed %d\n", first_in);
-    page_table_set_entry(pt, first_in, 0, 0);
+    page_table_set_entry(pt, page, 0, 0);
     int mem_count;
     mem_count = num_elements_in_frame_table();
     if (mem_count > 1){
         evict_frame(first_in);
     }
-    FIFO_INDEX++;
     return first_in;
 }
 
@@ -204,7 +217,7 @@ int fifo(struct page_table *pt){
  * returns: n:  index of new frame number that's free
  *
  */
-int get_new_frame_num(struct page_table *pt){
+int get_new_frame_num(struct page_table *pt, int page){
     // printf("get_new_frame_num:  entered func \n");
     int n;
     if (strcmp(PAGE_REPLACEMENT_TYPE, "rand") == 0){
@@ -213,9 +226,10 @@ int get_new_frame_num(struct page_table *pt){
     }
     else if (strcmp(PAGE_REPLACEMENT_TYPE, "fifo") == 0){
         // printf("get_new_frame_num:  replacement type is fifo \n");
-        //n = fifo(pt);
-        int num_elements = num_elements_in_frame_table();
-        n = num_elements % NFRAMES;
+        n = fifo(pt, page);
+        
+        // n = NUM_PAGE_FAULTS % NFRAMES;
+        printf("Number fifo got was:  %d \n", n);
     }
     else if (strcmp(PAGE_REPLACEMENT_TYPE, "custom") == 0){
         // printf("ERROR:  get_new_frame_num:  Custom has not been implemented yet \n");
@@ -270,10 +284,17 @@ void page_fault_handler( struct page_table *pt, int page )
         printf("page_fault_handler: Reading or writing permissions problem\n");
         printf("page_fault_handler: Page table printout: \n");
         page_table_print(pt);
-        if ((bits == 0) && (!(frame_is_full()))){  // No permissions
+        if ((bits == 0) && (!(frame_is_full()))){  // No permissions so its a new element
             printf("page_fault_handler: Inside if statement for no permissions \n");
-            
-            new_fn = get_new_frame_num(pt);
+            new_fn = get_new_frame_num(pt, page);
+            if (strcmp(PAGE_REPLACEMENT_TYPE, "rand") == 0){
+                while (FT.frames[new_fn] == 1){
+                    new_fn = get_new_frame_num(pt, page);
+                }
+            }
+            else if (strcmp(PAGE_REPLACEMENT_TYPE, "fifo") == 0){
+                
+            }
             page_table_set_entry(pt, page, new_fn, PROT_READ);
             update_frame(new_fn, 1, page);
             print_frame_table();
@@ -318,7 +339,7 @@ void page_fault_handler( struct page_table *pt, int page )
             page_table_print(pt);
             
             // Figure out which entry to kick out
-            new_fn = get_new_frame_num(pt);
+            new_fn = get_new_frame_num(pt, page);
             int page_num;
             page_num = FT.pages[new_fn];
             printf("Page number associated with new_fn is %d \n", page_num);
@@ -400,7 +421,8 @@ int main( int argc, char *argv[] )
     NUM_PAGE_FAULTS = 0;
     NUM_DISK_READS = 0;
     NUM_DISK_WRITES = 0;
-
+    TIME_STAMP_SIZE = 0;
+    
 	// Create virtual disk
 	DISK = disk_open("myvirtualdisk",NPAGES);
 	if(!DISK) {
@@ -427,7 +449,6 @@ int main( int argc, char *argv[] )
         FT.pages[i] = 0; // Initialize all pages to 0
         FT.permissions[i] = 0; // Initialize all permissions to 0; will be set to another num when filled
     }
-    FIFO_INDEX = 0;
     
 	// Create virual and physical memory space
 	char *virtmem = page_table_get_virtmem(pt);

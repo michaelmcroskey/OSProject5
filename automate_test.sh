@@ -57,9 +57,9 @@ do
     echo "Testing $pr ... "
     for p in "${PROGRAMS[@]}"
     do
-        for pn in "${PAGE_NUMS[@]}"
+        for rf in "${RATIO_FACTORS[@]}"
         do
-            for rf in "${RATIO_FACTORS[@]}"
+            for pn in "${PAGE_NUMS[@]}"
             do
                 fn_float=$(echo "$pn * $rf" | bc)
                 fn_int=${fn_float%.*}
