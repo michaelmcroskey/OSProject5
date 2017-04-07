@@ -56,13 +56,14 @@ struct frame_table {
  */
 void print_frame_table(){
     int i;
-    printf("Page\t|\tFrame\t|\tData\t|\tPermissions\t| \n");
+    printf("Page\t|\tFrame\t|\tData\t|\tPermissions\t|\tTime Stamp Order\t| \n");
     for (i = 0; i < NFRAMES; i++){
-        printf("%d\t\t%d\t\t%d\t\t%d\n",
+        printf("%d\t\t%d\t\t%d\t\t%d\t\t\t%d\n",
                FT.pages[i],
                i,
                FT.frames[i],
-               FT.permissions[i]);
+               FT.permissions[i],
+               FT.time_stamps[i]);
     }
 }
 
@@ -200,28 +201,24 @@ int rand_func(){
  */
 int fifo(struct page_table *pt, int page){
     
-    int first_in;
-    int index = 0;
-    first_in = FT.time_stamps[index];
-    // printf("first_in candidate: %d", first_in);
-    while (first_in == -1){
-        index++;
-        first_in = FT.time_stamps[index];
+    // Find the first in frame
+    int each_frame;
+    int first_in_frame;
+    for (each_frame = 0; each_frame < NFRAMES; each_frame++){
+        if (FT.time_stamps[each_frame] == 0){
+            first_in_frame = each_frame;
+        }
     }
-    // printf("fifo:  first-in element that should be removed %d\n", first_in);
     
-    // Shift the array
-    /*int *i_hate_pointers;
-    i_hate_pointers = FT.time_stamps + 1;*/
-    
-    
-    int c;
-    for ( c = 0 ; c < TIME_STAMP_SIZE - 1; c++ ){
-        FT.time_stamps[c] = FT.time_stamps[c+1];
+    // Update the other frames to now be one less
+    int current_time;
+    int new_time;
+    for (each_frame = 0; each_frame < NFRAMES; each_frame++){
+        current_time = FT.time_stamps[each_frame];
+        new_time = current_time - 1;
+        FT.time_stamps[each_frame] = new_time;
     }
-    TIME_STAMP_SIZE--;
-    
-    return first_in;
+    return first_in_frame;
 }
 
 /*
@@ -304,6 +301,8 @@ void evict_frame(int frame_to_evict){
     FT.frames[frame_to_evict] = 0;
     FT.permissions[frame_to_evict] = 0;
     FT.pages[frame_to_evict] = 0;
+    FT.time_stamps[frame_to_evict] = 0;
+    TIME_STAMP_SIZE--;
     
     
     print_frame_table();
@@ -362,8 +361,9 @@ void page_fault_handler( struct page_table *pt, int page )
         FT.frames[new_fn] = 1;
         FT.permissions[new_fn] = 1;
         FT.pages[new_fn] = page;
-        FT.time_stamps[TIME_STAMP_SIZE] = new_fn;
+        FT.time_stamps[new_fn] = TIME_STAMP_SIZE;
         TIME_STAMP_SIZE++;
+        
         print_frame_table();
         
         // Handle the disk
@@ -420,10 +420,10 @@ void page_fault_handler( struct page_table *pt, int page )
         
         // Evicting the frame
         evict_frame(new_fn);
-        
+        /*
         if (!strcmp(PAGE_REPLACEMENT_TYPE,"fifo")){
             handle_fifo_table(new_fn);
-        }
+        }*/
         
         
         if (old_bits == 3){
@@ -446,8 +446,8 @@ void page_fault_handler( struct page_table *pt, int page )
         FT.frames[new_fn] = 1;
         FT.permissions[new_fn] = 1;
         FT.pages[new_fn]=page;
+        FT.time_stamps[new_fn] = TIME_STAMP_SIZE;
         TIME_STAMP_SIZE++;
-        FT.time_stamps[TIME_STAMP_SIZE] = new_fn;
         
         printf("*****************FRAME TABLE AFTER UPDATE*****************\n");
         print_frame_table();
@@ -545,6 +545,7 @@ int main( int argc, char *argv[] )
         FT.frames[i] = 0; // Initialize all frames to 0; will be equal to 1 if they are filled
         FT.pages[i] = 0; // Initialize all pages to 0
         FT.permissions[i] = 0; // Initialize all permissions to 0; will be set to another num when filled
+        FT.time_stamps[i] = 0; // Initialize all permissions to 0; will be set to another num when filled
     }
     
     print_frame_table();
