@@ -241,6 +241,31 @@ int get_initial_frame(){
 }
 
 /*
+ * Function:  custom()
+ * --------------------
+ * Searches for a clean entry that can be evicted without writing
+ * anything back to disk.  Returns the fifo frame if it can't
+ * find anything.
+ *
+ *  pt:     pointer to the page table
+ *  page:   page associated with the page fault
+ *
+ * returns: clean_frame:  index of frame that's clean
+ *
+ */
+int custom(struct page_table *pt, int page){
+    int clean_frame;
+    for (clean_frame = 0; clean_frame < NFRAMES; clean_frame++){
+        if (FT.permissions[clean_frame] == 1){
+            return clean_frame;
+        }
+    }
+    clean_frame = fifo(pt, page);
+    return clean_frame;
+}
+
+
+/*
  * Function:  get_new_frame_num()
  * --------------------
  * Determines a new frame number depending on the page
@@ -261,7 +286,7 @@ int get_new_frame_num(struct page_table *pt, int page){
         n = fifo(pt, page);
     }
     else if (strcmp(PAGE_REPLACEMENT_TYPE, "custom") == 0){
-        exit(1);
+        n = custom(pt, page);
     }
     return n;
 }
