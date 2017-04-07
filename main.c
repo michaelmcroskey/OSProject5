@@ -138,17 +138,14 @@ void update_frame(int frame, int p, int p_n){
 }
 
 /*
- * Function:  evict frame
+ * Function:  handle_fifo_table
  * --------------------
- * Evicts a frame from the frame table
+ * When evicting a page from the frame, this updates the time
+ * stamp entry of that page to be -1.
  *
  *  frame:      index of frame to evict
  */
-void evict_frame(int frame){
-    // printf("evict_frame:  entered func \n");
-    FT.frames[frame] = 0;
-    FT.permissions[frame] = 0;
-    FT.pages[frame] = 0;
+void handle_fifo_table(int frame){
     int i;
     for (i = 0; i < TIME_STAMP_SIZE; i++){
         if (FT.time_stamps[i] == frame){
@@ -156,9 +153,6 @@ void evict_frame(int frame){
             break;
         }
     }
-    
-    // printf("evict_frame:  evicted frame and now number of elements in frame is %d \n", FT.phys_mem_count);
-    // printf("evict_frame:  exited func \n");
 }
 
 /*
@@ -200,7 +194,7 @@ int fifo(struct page_table *pt, int page){
     printf("fifo:  first-in element that should be removed %d\n", first_in);
     page_table_set_entry(pt, page, 0, 0);
     int mem_count;
-    mem_count = num_elements_in_frame_table(); 
+    mem_count = num_elements_in_frame_table();
     return first_in;
 }
 
@@ -309,8 +303,6 @@ void page_fault_handler( struct page_table *pt, int page )
             return;
         }
         
-        // frame_bits = FT.permissions[fn];
-        // printf("bits for frame # %d:  %d\n", fn, frame_bits);
         else if(frame_is_full()){
             printf("page_fault_handler:     No more free frames in physical memory \n");
             printf("page_fault_handler:     Frame table printout: \n");
@@ -333,6 +325,15 @@ void page_fault_handler( struct page_table *pt, int page )
             printf("FRAME NUMBER:\t%d \n", new_fn);
             printf("BITS:\t\t%d \n", old_bits);
             
+            FT.frames[new_fn] = 0;
+            FT.permissions[new_fn] = 0;
+            FT.pages[new_fn] = 0;
+            
+            if (!strcmp(PAGE_REPLACEMENT_TYPE,"fifo")){
+                handle_fifo_table(new_fn);
+            }
+            
+            
             if (old_bits == 3){
                 printf("************************************ \n");
                 printf("WRITE IS HAPPENING HERE ************ \n");
@@ -342,7 +343,7 @@ void page_fault_handler( struct page_table *pt, int page )
                 NUM_DISK_WRITES++;
             }
             
-            evict_frame(new_fn);
+            
             
             printf("frame_table after evicting frame %d \n", new_fn);
             print_frame_table();
