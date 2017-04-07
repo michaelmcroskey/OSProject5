@@ -14,8 +14,8 @@ echo "  -r algorithm:   removes a specific algorithm's results from the test fil
 
 # Variable definitions
 declare -a PAGE_REPLACEMENTS=()
-declare -a PAGE_NUMS=(12 36 60 84 108)
-declare -a RATIO_FACTORS=(.25 .50 .75)
+declare -a PAGE_NUMS=(100)
+declare -a RATIO_FACTORS=(.2 .4 .6 .8)
 declare -a PROGRAMS=("sort" "focus" "scan")
 
 
