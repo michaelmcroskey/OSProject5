@@ -89,7 +89,7 @@ bool frame_is_full(){
     
     int mem_count;
     mem_count = num_elements_in_frame_table();
-    printf("Mem count is:  %d\n", mem_count);
+    // printf("Mem count is:  %d\n", mem_count);
     if (mem_count == NFRAMES){
         return true;
     }
@@ -166,7 +166,7 @@ int rand_func(){
     // printf("rand_func:  getting random position \n");
     int n;
     n = rand() % NFRAMES;
-    printf("rand_func:  random number = %d \n", n);
+    // printf("rand_func:  random number = %d \n", n);
     return n;
 }
 
@@ -186,12 +186,12 @@ int fifo(struct page_table *pt, int page){
     int first_in;
     int index = 0;
     first_in = FT.time_stamps[index];
-    printf("first_in candidate: %d", first_in);
+    // printf("first_in candidate: %d", first_in);
     while (first_in == -1){
         index++;
         first_in = FT.time_stamps[index];
     }
-    printf("fifo:  first-in element that should be removed %d\n", first_in);
+    // printf("fifo:  first-in element that should be removed %d\n", first_in);
     page_table_set_entry(pt, page, 0, 0);
     int mem_count;
     mem_count = num_elements_in_frame_table();
@@ -219,11 +219,11 @@ int get_new_frame_num(struct page_table *pt, int page){
         n = rand_func();
     }
     else if (strcmp(PAGE_REPLACEMENT_TYPE, "fifo") == 0){
-        printf("get_new_frame_num:  replacement type is fifo \n");
+        // printf("get_new_frame_num:  replacement type is fifo \n");
         n = fifo(pt, page);
         
         // n = NUM_PAGE_FAULTS % NFRAMES;
-        printf("Number fifo got was:  %d \n", n);
+        // printf("Number fifo got was:  %d \n", n);
     }
     else if (strcmp(PAGE_REPLACEMENT_TYPE, "custom") == 0){
         // printf("ERROR:  get_new_frame_num:  Custom has not been implemented yet \n");
@@ -258,12 +258,12 @@ void page_fault_handler( struct page_table *pt, int page )
     // printf("page_fault_handler:  page_table_get_entry starting... \n");
     page_table_get_entry(pt, page, &fn, &bits);
     // printf("page_fault_handler:  page_table_get_entry completed \n");
-    printf("**GET ENTRY SUMMARY**\n");
+    /*printf("**GET ENTRY SUMMARY**\n");
     printf("PAGE NUMBER:\t%d \n", page);
     printf("FRAME NUMBER:\t%d \n", fn);
-    printf("BITS:\t\t%d \n", bits);
+    printf("BITS:\t\t%d \n", bits);*/
     // printf("Current Size of Frame Table: %d \n", FT.phys_mem_count);
-    // print_frame_table();
+    // // print_frame_table();
     // Trivial Example
     if (NFRAMES == NPAGES){
         page_table_set_entry(pt,page,page,PROT_READ|PROT_WRITE);
@@ -275,55 +275,55 @@ void page_fault_handler( struct page_table *pt, int page )
     // Reading or writing permissions issue
     else {
         
-        printf("page_fault_handler: Reading or writing permissions problem\n");
-        printf("page_fault_handler: Page table printout: \n");
-        page_table_print(pt);
+        // printf("page_fault_handler: Reading or writing permissions problem\n");
+        // printf("page_fault_handler: Page table printout: \n");
+        // page_table_print(pt);
         if ((bits == 0) && (!(frame_is_full()))){  // No permissions so its a new element
-            printf("page_fault_handler: Inside if statement for no permissions \n");
+            // printf("page_fault_handler: Inside if statement for no permissions \n");
             new_fn = rand_func();
             while (FT.frames[new_fn] == 1){
                 new_fn = rand_func();
             }
             page_table_set_entry(pt, page, new_fn, PROT_READ);
             update_frame(new_fn, 1, page);
-            print_frame_table();
+            // print_frame_table();
             disk_read(DISK, page, &PHYSMEM[new_fn*FRAME_SIZE]);
             NUM_DISK_READS++;
-            printf("page_fault_handler: finished adding read permissions  \n");
-            printf("page_fault_handler:     Page table printout: \n");
-            page_table_print(pt);
+            // printf("page_fault_handler: finished adding read permissions  \n");
+            // printf("page_fault_handler:     Page table printout: \n");
+            // page_table_print(pt);
             return;
         }
         else if (bits == PROT_READ){ // Only read permissions
             page_table_set_entry(pt, page, fn, (PROT_READ|PROT_WRITE));
             update_frame(fn, 3, page);
-            printf("page_fault_handler:  Finished page_table_set_entry & updated to read and write \n");
-            printf("page_fault_handler:     Page table printout: \n");
-            page_table_print(pt);
+            // printf("page_fault_handler:  Finished page_table_set_entry & updated to read and write \n");
+            // printf("page_fault_handler:     Page table printout: \n");
+            // page_table_print(pt);
             return;
         }
         
         else if(frame_is_full()){
-            printf("page_fault_handler:     No more free frames in physical memory \n");
-            printf("page_fault_handler:     Frame table printout: \n");
-            print_frame_table();
-            printf("page_fault_handler:     Page table printout: \n");
-            page_table_print(pt);
+            // printf("page_fault_handler:     No more free frames in physical memory \n");
+            // printf("page_fault_handler:     Frame table printout: \n");
+            // print_frame_table();
+            // printf("page_fault_handler:     Page table printout: \n");
+            // page_table_print(pt);
             
             // Figure out which entry to kick out
             new_fn = get_new_frame_num(pt, page);
             int page_num;
             page_num = FT.pages[new_fn];
-            printf("Page number associated with new_fn is %d \n", page_num);
+            // printf("Page number associated with new_fn is %d \n", page_num);
             
             int old_bits;
             old_bits = FT.permissions[new_fn];
             // Getting info for entry being kicked out
             
-            printf("**ENTRY BEING KICKED OUT SUMMARY**\n");
+            /*printf("**ENTRY BEING KICKED OUT SUMMARY**\n");
             printf("PAGE NUMBER:\t%d \n", page_num);
             printf("FRAME NUMBER:\t%d \n", new_fn);
-            printf("BITS:\t\t%d \n", old_bits);
+            printf("BITS:\t\t%d \n", old_bits);*/
             
             FT.frames[new_fn] = 0;
             FT.permissions[new_fn] = 0;
@@ -335,33 +335,33 @@ void page_fault_handler( struct page_table *pt, int page )
             
             
             if (old_bits == 3){
-                printf("************************************ \n");
+                /*printf("************************************ \n");
                 printf("WRITE IS HAPPENING HERE ************ \n");
                 printf("************************************ \n");
-                printf("page_fault_handler:     Bits are read and write \n");
+                printf("page_fault_handler:     Bits are read and write \n");*/
                 disk_write(DISK, page_num, &PHYSMEM[0*PAGE_SIZE]);
                 NUM_DISK_WRITES++;
             }
             
             
             
-            printf("frame_table after evicting frame %d \n", new_fn);
-            print_frame_table();
+            // printf("frame_table after evicting frame %d \n", new_fn);
+            // print_frame_table();
             update_frame(new_fn, 1, page);
-            printf("frame_table after updating frame %d \n", new_fn);
-            print_frame_table();
+            // printf("frame_table after updating frame %d \n", new_fn);
+            // print_frame_table();
             
             disk_read(DISK, page, &PHYSMEM[0*PAGE_SIZE]);
             page_table_set_entry(pt, page, new_fn, PROT_READ);
             page_table_set_entry(pt, page_num, 0, 0);
-            printf("END OF FRAME IS FULL!!!!! page_fault_handler:     Page table printout: \n");
-            page_table_print(pt);
+            // printf("END OF FRAME IS FULL!!!!! page_fault_handler:     Page table printout: \n");
+            // page_table_print(pt);
             NUM_DISK_READS++;
             
         }
         // There are no more free frames in physical memory
         else{
-            printf("page fault on page #%d\n",page);
+            // printf("page fault on page #%d\n",page);
             exit(1);
         }
     }
