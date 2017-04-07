@@ -91,7 +91,7 @@ bool frame_is_full(){
     
     int mem_count;
     mem_count = num_elements_in_frame_table();
-    printf("Mem count is:  %d\n", mem_count);
+    // printf("Mem count is:  %d\n", mem_count);
     if (mem_count == NFRAMES){
         return true;
     }
@@ -128,31 +128,31 @@ bool is_frame_free(int frame_number){
  *  p:          permissions of frame being inserted
  */
 void update_frame(int frame, int p, int p_n){
-    printf("(A) updating new frame table:....................\n");
-    print_frame_table();
+    // printf("(A) updating new frame table:....................\n");
+    // print_frame_table();
     
-    printf("updating........................................\n");
+    /*printf("updating........................................\n");
     printf("frame_num:.................................... %d\n", frame);
     printf("page_num:..................................... %d\n", p_n);
-    printf("permissions:.................................. %d\n", p);
+    printf("permissions:.................................. %d\n", p);*/
     
     FT.time_stamps[TIME_STAMP_SIZE] = frame;
     TIME_STAMP_SIZE++;
     FT.frames[frame] = 1;
     
-    printf("(B) after `FT.frames[frame] = 1` :....................\n");
-    print_frame_table();
+    // printf("(B) after `FT.frames[frame] = 1` :....................\n");
+    // print_frame_table();
     
     FT.permissions[frame] = p;
-    printf("(C) after `FT.permissions[frame] = p;` :....................\n");
-    print_frame_table();
+    // printf("(C) after `FT.permissions[frame] = p;` :....................\n");
+    // print_frame_table();
     
     FT.pages[frame] = p_n;
-    printf("(D) after `FT.pages[frame] = p_n;` :....................\n");
-    print_frame_table();
+    // printf("(D) after `FT.pages[frame] = p_n;` :....................\n");
+    // print_frame_table();
     
-    printf("(E) updating new frame table:....................\n");
-    print_frame_table();
+    // printf("(E) updating new frame table:....................\n");
+    // print_frame_table();
 }
 
 /*
@@ -297,7 +297,7 @@ int get_evict_frame(struct page_table *pt, int page){
  *
  */
 void evict_frame(int frame_to_evict){
-    printf("Evicting frame %d ... \n", frame_to_evict);
+    // printf("Evicting frame %d ... \n", frame_to_evict);
     FT.frames[frame_to_evict] = 0;
     FT.permissions[frame_to_evict] = 0;
     FT.pages[frame_to_evict] = 0;
@@ -305,7 +305,7 @@ void evict_frame(int frame_to_evict){
     TIME_STAMP_SIZE--;
     
     
-    print_frame_table();
+    // print_frame_table();
 }
 
 
@@ -333,13 +333,13 @@ void page_fault_handler( struct page_table *pt, int page )
     // Get the page table entry
     // printf("page_fault_handler:  page_table_get_entry starting... \n");
     page_table_get_entry(pt, page, &fn, &bits);
-    printf("page_fault_handler:  page_table_get_entry completed \n");
+    /*printf("page_fault_handler:  page_table_get_entry completed \n");
     printf("**GET ENTRY SUMMARY**\n");
     printf("PAGE NUMBER:\t%d \n", page);
     printf("FRAME NUMBER:\t%d \n", fn);
-    printf("BITS:\t\t%d \n", bits);
+    printf("BITS:\t\t%d \n", bits);*/
     // printf("Current Size of Frame Table: %d \n", FT.phys_mem_count);
-    // // print_frame_table();
+    // // // print_frame_table();
     // Trivial Example
     if (NFRAMES == NPAGES){
         page_table_set_entry(pt,page,page,PROT_READ|PROT_WRITE);
@@ -348,7 +348,7 @@ void page_fault_handler( struct page_table *pt, int page )
         
     
     else if ((bits == 0) && (!(frame_is_full()))){  // No permissions so its a new element
-        printf("page_fault_handler: Inside if statement for no permissions \n");
+        //printf("page_fault_handler: Inside if statement for no permissions \n");
         
         // Get new frame number
         int new_fn;
@@ -364,34 +364,34 @@ void page_fault_handler( struct page_table *pt, int page )
         FT.time_stamps[new_fn] = TIME_STAMP_SIZE;
         TIME_STAMP_SIZE++;
         
-        print_frame_table();
+        // print_frame_table();
         
         // Handle the disk
         disk_read(DISK, page, &PHYSMEM[new_fn*FRAME_SIZE]);
         NUM_DISK_READS++;
         
         
-        printf("page_fault_handler: finished adding read permissions  \n");
+        /*printf("page_fault_handler: finished adding read permissions  \n");
         printf("page_fault_handler:     Page table printout: \n");
-        page_table_print(pt);
+        // page_table_print(pt);
         printf("page_fault_handler:     Frame table printout: \n");
-        print_frame_table();
+        // print_frame_table();*/
         return;
     }
     else if (bits == PROT_READ){ // Only read permissions
-        printf("page_fault_handler:     Frame table printout AT THE BEGINNING OF ONLY READ PERMISSIONS: \n");
-        print_frame_table();
+        // printf("page_fault_handler:     Frame table printout AT THE BEGINNING OF ONLY READ PERMISSIONS: \n");
+        // print_frame_table();
         
         // Set the entry in the page table to be read and write
         page_table_set_entry(pt, page, fn, (PROT_READ|PROT_WRITE));
-        printf("page_fault_handler:    page table after updating to read and write \n");
-        page_table_print(pt);
+        // printf("page_fault_handler:    page table after updating to read and write \n");
+        // page_table_print(pt);
         
         
         // Update the frame table permissions for that frame to be 3 (read & write)
         FT.permissions[fn] = 3;
-        printf("page_fault_handler:     frame table after updating to 3 \n");
-        print_frame_table();
+        // printf("page_fault_handler:     frame table after updating to 3 \n");
+        // print_frame_table();
         
         return;
     }
@@ -399,23 +399,23 @@ void page_fault_handler( struct page_table *pt, int page )
     else if(frame_is_full()){
         // FIX THIS ONE NOW!!!!!!!!!!!!
         
-        printf("page_fault_handler:     No more free frames in physical memory \n");
+        /*printf("page_fault_handler:     No more free frames in physical memory \n");
         printf("page_fault_handler:     Frame table printout: \n");
-        print_frame_table();
+        // print_frame_table();
         printf("page_fault_handler:     Page table printout: \n");
-        page_table_print(pt);
+        // page_table_print(pt);*/
         
         // Get the frame to evict
         new_fn = get_evict_frame(pt, page);
-        printf("Kicking out frame %d\n", new_fn);
+        // printf("Kicking out frame %d\n", new_fn);
         int page_num, old_bits;
         page_num = FT.pages[new_fn];
         old_bits = FT.permissions[new_fn];
         // Getting info for entry being kicked out
-        printf("**ENTRY BEING KICKED OUT SUMMARY WITH OLD BITS**\n");
+        /*printf("**ENTRY BEING KICKED OUT SUMMARY WITH OLD BITS**\n");
         printf("PAGE NUMBER:\t%d \n", page_num);
         printf("FRAME NUMBER:\t%d \n", new_fn);
-        printf("BITS:\t\t%d \n", old_bits);
+        printf("BITS:\t\t%d \n", old_bits);*/
         
         
         // Evicting the frame
@@ -427,21 +427,21 @@ void page_fault_handler( struct page_table *pt, int page )
         
         
         if (old_bits == 3){
-            printf("************************************ \n");
+            /*printf("************************************ \n");
             printf("WRITE IS HAPPENING HERE ************ \n");
             printf("************************************ \n");
-            printf("page_fault_handler:     Bits are read and write \n");
+            printf("page_fault_handler:     Bits are read and write \n");*/
             disk_write(DISK, page_num, &PHYSMEM[0*PAGE_SIZE]);
             NUM_DISK_WRITES++;
         }
         
         
         
-        printf("frame_table after evicting frame %d \n", new_fn);
+        // printf("frame_table after evicting frame %d \n", new_fn);
     
         
-        printf("*****************FRAME TABLE BEFORE UPDATE*****************\n");
-        print_frame_table();
+        // printf("*****************FRAME TABLE BEFORE UPDATE*****************\n");
+        // print_frame_table();
         
         FT.frames[new_fn] = 1;
         FT.permissions[new_fn] = 1;
@@ -449,16 +449,16 @@ void page_fault_handler( struct page_table *pt, int page )
         FT.time_stamps[new_fn] = TIME_STAMP_SIZE;
         TIME_STAMP_SIZE++;
         
-        printf("*****************FRAME TABLE AFTER UPDATE*****************\n");
-        print_frame_table();
+        // printf("*****************FRAME TABLE AFTER UPDATE*****************\n");
+        // print_frame_table();
     
         disk_read(DISK, page, &PHYSMEM[0*PAGE_SIZE]);
         page_table_set_entry(pt, page, new_fn, PROT_READ);
         page_table_set_entry(pt, page_num, 0, 0);
-        printf("***********END OF FRAME IS FULL!!!!! page_fault_handler:     Page table printout: \n");
-        page_table_print(pt);
-        printf("frame_table at end of frame table is full %d \n", new_fn);
-        print_frame_table();
+        /*printf("***********END OF FRAME IS FULL!!!!! page_fault_handler:     Page table printout: \n");
+        // page_table_print(pt);
+        printf("frame_table at end of frame table is full %d \n", new_fn);*/
+        // print_frame_table();
         NUM_DISK_READS++;
         
     }
@@ -548,7 +548,7 @@ int main( int argc, char *argv[] )
         FT.time_stamps[i] = 0; // Initialize all permissions to 0; will be set to another num when filled
     }
     
-    print_frame_table();
+    // print_frame_table();
     
 	// Create virual and physical memory space
 	char *virtmem = page_table_get_virtmem(pt);
