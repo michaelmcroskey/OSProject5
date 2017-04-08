@@ -8,9 +8,14 @@ Project Overview
 
 - [Project Requirements](http://www3.nd.edu/~dthain/courses/cse30341/spring2017/project5/project5.html)
 
-<img src="images/vm1.gif" width="500">
+<img src="images/vm1.gif" width="500" style="text-align: center;">
 
-Operating Systems Project 5 is a page fault handler tool that will trap page faults and identify the correct course of action, which generally means updating the page table, and moving data back and forth between the disk and physical memory.  The OS course at Notre Dame provided us with code that implements a "virtual" page table and a "virtual" disk and so our job was to handle any page fault errors that could result.  A user will run `./virtmem NUM_PAGES NUM_FRAMES PAGE_REPLACEMENT_ALGORITHM PROGRAM` (described below) and the output will report (1) the number of page faults, (2) the number of disk writes, (3) the number of disk reads and the (4) result of the `PROGRAM` chosen.
+Operating Systems Project 5 is a page fault handler tool that will trap page faults and identify the correct course of action, which generally means updating the page table, and moving data back and forth between the disk and physical memory.  The OS course at Notre Dame provided us with code that implements a "virtual" page table and a "virtual" disk and so our job was to handle any page fault errors that could result.  A user will run `./virtmem NUM_PAGES NUM_FRAMES PAGE_REPLACEMENT_ALGORITHM PROGRAM` (described below) and the output will report:
+
+1. the number of page faults
+2. the number of disk writes
+3. the number of disk reads and the
+4. result of the `PROGRAM` chosen
 
 |       Command Line Argument       |                 Description               |
 |-----------------------------------|-------------------------------------------|
@@ -65,7 +70,7 @@ When invoked, the `custom` page replacement algorithm searches for a clean frame
 
 ### Results
 
-<img src="images/results.png" width="600" style="margin: auto;">
+<img src="images/results.png" width="600" style="text-align: center;">
 
 As the number of frames to pages increases, in terms of the SUM of the number of page faults, disk reads, and disk writes altogether (and after ignoring our outlier values - more described below) the best page replacement algorithm for the program: 
 
